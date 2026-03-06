@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THREADER.NOW</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f2ec;
+    --cream: #ede8df;
+    --accent: #c8ff00;
+    --muted: #5a5a5a;
+    --red: #ff3b3b;
+    --border: #2a2a2a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  .cursor {
+    width: 12px; height: 12px;
+    background: var(--accent);
+    border-radius: 50%;
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.15s ease, width 0.2s, height 0.2s;
+    transform: translate(-50%, -50%);
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(200,255,0,0.4);
+    border-radius: 50%;
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: all 0.3s ease;
+  }
+  body:hover .cursor { opacity: 1; }
+
+  /* TICKER */
+  .ticker {
+    background: var(--accent);
+    color: var(--black);
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    padding: 8px 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .ticker-inner {
+    display: inline-block;
+    animation: ticker 18s linear infinite;
+  }
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* NAV */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 48px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(10,10,10,0.95);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 0.08em;
+    color: var(--white);
+    text-decoration: none;
+  }
+  .logo span { color: var(--accent); }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--white); }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .icon-btn {
+    background: none;
+    border: none;
+    color: var(--white);
+    cursor: none;
+    position: relative;
+    padding: 6px;
+    transition: color 0.2s;
+  }
+  .icon-btn:hover { color: var(--accent); }
+
+  .badge {
+    position: absolute;
+    top: 0; right: 0;
+    background: var(--accent);
+    color: var(--black);
+    font-size: 9px;
+    font-weight: 700;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Courier Prime', monospace;
+  }
+
+  /* HERO */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 88vh;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero-left {
+    padding: 80px 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right: 1px solid var(--border);
+  }
+
+  .hero-tag {
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(72px, 10vw, 140px);
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+    margin-bottom: 32px;
+  }
+
+  .hero-title .outline {
+    -webkit-text-stroke: 1px var(--white);
+    color: transparent;
+  }
+
+  .hero-sub {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--muted);
+    max-width: 380px;
+    margin-bottom: 40px;
+    font-weight: 300;
+    font-style: italic;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--accent);
+    color: var(--black);
+    font-family: 'Courier Prime', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 16px 32px;
+    border: none;
+    cursor: none;
+    transition: all 0.2s;
+    width: fit-content;
+  }
+  .btn-primary:hover {
+    background: var(--white);
+    transform: translateY(-2px);
+  }
+
+  .hero-right {
+    position: relative;
+    overflow: hidden;
+    background: #111;
+  }
+
+  .hero-img-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    height: 100%;
+    gap: 1px;
+    background: var(--border);
+  }
+
+  .hero-img-cell {
+    background: #151515;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 80px;
+    color: #222;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .hero-img-cell:first-child {
+    background: linear-gradient(135deg, #1a1a1a 0%, #222 100%);
+    font-size: 110px;
+    color: #2a2a2a;
+  }
+
+  .floating-tag {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    background: var(--accent);
+    color: var(--black);
+    font-family: 'Courier Prime', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 10px;
+    letter-spacing: 0.1em;
+  }
+
+  /* PRODUCTS */
+  .section {
+    padding: 80px 48px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 48px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 24px;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    letter-spacing: 0.05em;
+  }
+
+  .section-count {
+    font-family: 'Courier Prime', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: var(--border);
+  }
+
+  .product-card {
+    background: var(--black);
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+    cursor: none;
+  }
+  .product-card:hover { background: #111; }
+
+  .product-img {
+    aspect-ratio: 3/4;
+    background: #141414;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 100px;
+    color: #232323;
+  }
+
+  .product-img .garment-icon {
+    font-size: 72px;
+    opacity: 0.6;
+    transition: transform 0.4s ease, opacity 0.4s;
+    filter: grayscale(1);
+  }
+  .product-card:hover .garment-icon {
+    transform: scale(1.08);
+    opacity: 0.85;
+  }
+
+  .product-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 16px;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .product-card:hover .product-overlay { opacity: 1; }
+
+  .overlay-btn {
+    width: 100%;
+    padding: 12px;
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border: none;
+    cursor: none;
+    transition: all 0.2s;
+  }
+
+  .btn-cart {
+    background: var(--accent);
+    color: var(--black);
+  }
+  .btn-cart:hover { background: var(--white); }
+
+  .btn-buy {
+    background: var(--white);
+    color: var(--black);
+  }
+  .btn-buy:hover { background: var(--cream); }
+
+  .wishlist-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(10,10,10,0.7);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: none;
+    transition: all 0.2s;
+    font-size: 16px;
+    backdrop-filter: blur(4px);
+  }
+  .wishlist-btn:hover, .wishlist-btn.active {
+    background: rgba(10,10,10,0.95);
+    color: var(--red);
+    border-color: var(--red);
+  }
+  .wishlist-btn.active { color: var(--red); }
+
+  .new-tag {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: var(--accent);
+    color: var(--black);
+    font-family: 'Courier Prime', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 3px 8px;
+    letter-spacing: 0.15em;
+  }
+
+  .product-info {
+    padding: 20px 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .product-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+
+  .product-category {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    font-family: 'Courier Prime', monospace;
+  }
+
+  .product-price-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .price {
+    font-family: 'Courier Prime', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .price-original {
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: line-through;
+    margin-left: 6px;
+  }
+
+  .size-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .size-chip {
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Courier Prime', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    cursor: none;
+    transition: all 0.2s;
+  }
+  .size-chip:hover, .size-chip.selected {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* CART PANEL */
+  .panel-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .panel-overlay.open { opacity: 1; pointer-events: all; }
+
+  .side-panel {
+    position: fixed;
+    top: 0; right: 0;
+    width: 420px;
+    height: 100vh;
+    background: #0d0d0d;
+    border-left: 1px solid var(--border);
+    z-index: 201;
+    transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+    display: flex;
+    flex-direction: column;
+  }
+  .side-panel.open { transform: translateX(0); }
+
+  .panel-header {
+    padding: 28px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .panel-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 0.05em;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: none;
+    font-size: 20px;
+    transition: color 0.2s;
+  }
+  .close-btn:hover { color: var(--white); }
+
+  .panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 32px;
+  }
+
+  .panel-body::-webkit-scrollbar { width: 4px; }
+  .panel-body::-webkit-scrollbar-track { background: transparent; }
+  .panel-body::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .cart-item {
+    display: grid;
+    grid-template-columns: 72px 1fr auto;
+    gap: 16px;
+    align-items: start;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .cart-item-img {
+    width: 72px; height: 90px;
+    background: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+  }
+
+  .cart-item-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+
+  .cart-item-meta {
+    font-family: 'Courier Prime', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+  }
+
+  .qty-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid var(--border);
+    width: fit-content;
+  }
+
+  .qty-btn {
+    background: none;
+    border: none;
+    color: var(--white);
+    padding: 4px 10px;
+    cursor: none;
+    font-size: 14px;
+    transition: background 0.2s;
+  }
+  .qty-btn:hover { background: var(--border); }
+
+  .qty-num {
+    font-family: 'Courier Prime', monospace;
+    font-size: 13px;
+    min-width: 20px;
+    text-align: center;
+  }
+
+  .remove-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: none;
+    font-size: 18px;
+    transition: color 0.2s;
+    padding: 4px;
+  }
+  .remove-btn:hover { color: var(--red); }
+
+  .cart-item-price {
+    font-family: 'Courier Prime', monospace;
+    font-size: 14px;
+    color: var(--accent);
+    font-weight: 700;
+    margin-top: 4px;
+  }
+
+  .panel-footer {
+    padding: 24px 32px;
+    border-top: 1px solid var(--border);
+  }
+
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 20px;
+  }
+
+  .total-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .total-amount {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+
+  .checkout-btn {
+    width: 100%;
+    padding: 18px;
+    background: var(--accent);
+    color: var(--black);
+    font-family: 'Courier Prime', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border: none;
+    cursor: none;
+    transition: all 0.2s;
+    margin-bottom: 10px;
+  }
+  .checkout-btn:hover { background: var(--white); transform: translateY(-2px); }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    gap: 12px;
+    color: var(--muted);
+  }
+  .empty-state .empty-icon { font-size: 48px; opacity: 0.4; }
+  .empty-state p { font-family: 'Courier Prime', monospace; font-size: 12px; letter-spacing: 0.1em; }
+
+  /* WISHLIST PANEL */
+  .wishlist-item {
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    animation: slideIn 0.3s ease;
+  }
+
+  /* TOAST */
+  .toast-container {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .toast {
+    background: var(--white);
+    color: var(--black);
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 12px 24px;
+    animation: toastIn 0.3s ease, toastOut 0.3s ease 2.2s forwards;
+    white-space: nowrap;
+  }
+  .toast.success { background: var(--accent); }
+  .toast.wishlist { background: var(--red); color: var(--white); }
+
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes toastOut {
+    to { opacity: 0; transform: translateY(12px); }
+  }
+
+  /* BUY NOW MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(8px);
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: #0d0d0d;
+    border: 1px solid var(--border);
+    width: 520px;
+    max-width: 95vw;
+    padding: 48px;
+    transform: scale(0.95);
+    transition: transform 0.3s;
+  }
+  .modal-overlay.open .modal { transform: scale(1); }
+
+  .modal-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+
+  .modal-subtitle {
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 32px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .form-input {
+    width: 100%;
+    background: #1a1a1a;
+    border: 1px solid var(--border);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 12px 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-input:focus { border-color: var(--accent); }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .modal-product-summary {
+    background: #141414;
+    border: 1px solid var(--border);
+    padding: 16px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .modal-product-img {
+    width: 56px; height: 72px;
+    background: #1e1e1e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+
+  .modal-product-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 0.05em;
+  }
+
+  .modal-product-price {
+    font-family: 'Courier Prime', monospace;
+    font-size: 14px;
+    color: var(--accent);
+    margin-top: 4px;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .btn-secondary {
+    flex: 1;
+    padding: 14px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    cursor: none;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--white); color: var(--white); }
+
+  /* FOOTER STRIP */
+  .footer-strip {
+    border-top: 1px solid var(--border);
+    padding: 32px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .footer-logo span { color: var(--accent); }
+
+  .footer-copy {
+    font-family: 'Courier Prime', monospace;
+    font-size: 10px;
+    color: #333;
+    letter-spacing: 0.1em;
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- TICKER -->
+<div class="ticker">
+  <span class="ticker-inner">
+    ✦ FREE SHIPPING ON ORDERS ABOVE ₹999 &nbsp;&nbsp;&nbsp; ✦ NEW DROP: OVERSIZED SERIES 03 &nbsp;&nbsp;&nbsp; ✦ USE CODE THREAD15 FOR 15% OFF &nbsp;&nbsp;&nbsp; ✦ THREADER.NOW — WEAR THE MOMENT &nbsp;&nbsp;&nbsp; ✦ FREE SHIPPING ON ORDERS ABOVE ₹999 &nbsp;&nbsp;&nbsp; ✦ NEW DROP: OVERSIZED SERIES 03 &nbsp;&nbsp;&nbsp; ✦ USE CODE THREAD15 FOR 15% OFF &nbsp;&nbsp;&nbsp; ✦ THREADER.NOW — WEAR THE MOMENT &nbsp;&nbsp;&nbsp;
+  </span>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">THREADER<span>.</span>NOW</a>
+  <ul class="nav-links">
+    <li><a href="#">New In</a></li>
+    <li><a href="#">Men</a></li>
+    <li><a href="#">Women</a></li>
+    <li><a href="#">Drops</a></li>
+    <li><a href="#">About</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="icon-btn" onclick="openWishlist()">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+      <span class="badge" id="wishlistBadge" style="display:none">0</span>
+    </button>
+    <button class="icon-btn" onclick="openCart()">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+      <span class="badge" id="cartBadge" style="display:none">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <p class="hero-tag">✦ SS2026 Collection</p>
+    <h1 class="hero-title">
+      WEAR<br>
+      THE<br>
+      <span class="outline">MOMENT</span>
+    </h1>
+    <p class="hero-sub">Garments that don't follow trends — they outlive them. Crafted for those who move through the world on their own terms.</p>
+    <button class="btn-primary" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">
+      Shop Now
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+  <div class="hero-right">
+    <div class="hero-img-grid">
+      <div class="hero-img-cell" style="font-size:120px; color:#222;">👕<div class="floating-tag">NEW DROP</div></div>
+      <div class="hero-img-cell" style="font-size:90px; color:#1e1e1e;">🧥</div>
+      <div class="hero-img-cell" style="background:#131313; font-size:80px; color:#1a1a1a;">👖</div>
+      <div class="hero-img-cell" style="background:#161616; font-size:70px; color:#1c1c1c;">🧢</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section class="section" id="products">
+  <div class="section-header">
+    <h2 class="section-title">Latest Drops</h2>
+    <span class="section-count" id="productCount">— 6 PIECES</span>
+  </div>
+  <div class="products-grid" id="productsGrid"></div>
+</section>
+
+<!-- FOOTER -->
+<div class="footer-strip">
+  <div class="footer-logo">THREADER<span>.</span>NOW</div>
+  <div class="footer-copy">© 2026 THREADER.NOW — ALL RIGHTS RESERVED</div>
+</div>
+
+<!-- CART PANEL -->
+<div class="panel-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="side-panel" id="cartPanel">
+  <div class="panel-header">
+    <h2 class="panel-title">Your Cart</h2>
+    <button class="close-btn" onclick="closeCart()">✕</button>
+  </div>
+  <div class="panel-body" id="cartBody"></div>
+  <div class="panel-footer" id="cartFooter" style="display:none">
+    <div class="total-row">
+      <span class="total-label">Total</span>
+      <span class="total-amount" id="cartTotal">₹0</span>
+    </div>
+    <button class="checkout-btn" onclick="placeOrder()">Proceed to Checkout →</button>
+  </div>
+</div>
+
+<!-- WISHLIST PANEL -->
+<div class="panel-overlay" id="wishlistOverlay" onclick="closeWishlist()"></div>
+<div class="side-panel" id="wishlistPanel">
+  <div class="panel-header">
+    <h2 class="panel-title">Wishlist</h2>
+    <button class="close-btn" onclick="closeWishlist()">✕</button>
+  </div>
+  <div class="panel-body" id="wishlistBody"></div>
+</div>
+
+<!-- BUY NOW MODAL -->
+<div class="modal-overlay" id="buyModal">
+  <div class="modal">
+    <div id="modalProductSummary"></div>
+    <h2 class="modal-title">Checkout</h2>
+    <p class="modal-subtitle">✦ SECURE & FAST DELIVERY</p>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">First Name</label>
+        <input class="form-input" type="text" placeholder="Arjun">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Last Name</label>
+        <input class="form-input" type="text" placeholder="Sharma">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-input" type="email" placeholder="arjun@example.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Delivery Address</label>
+      <input class="form-input" type="text" placeholder="Street, City, PIN">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Phone</label>
+        <input class="form-input" type="tel" placeholder="+91 98765 43210">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Pincode</label>
+        <input class="form-input" type="text" placeholder="560001">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeBuyModal()">Cancel</button>
+      <button class="checkout-btn" style="flex:2; margin:0" onclick="confirmOrder()">Place Order →</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// CURSOR
+const cursor = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top = my + 'px';
+});
+
+function animateRing() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) *.12;
+  cursorRing.style.left = rx + 'px';
+  cursorRing.style.top = ry + 'px';
+  requestAnimationFrame(animateRing);
+}
+animateRing();
+
+// DATA
+const products = [
+  { id: 1, name: 'VOID OVERSIZED TEE', category: 'T-Shirts', price: 849, original: 1199, icon: '👕', isNew: true, sizes: ['XS','S','M','L','XL'] },
+  { id: 2, name: 'SMOKE CARGO PANTS', category: 'Bottoms', price: 1499, original: 1999, icon: '👖', isNew: false, sizes: ['28','30','32','34','36'] },
+  { id: 3, name: 'THREAD BOMBER', category: 'Outerwear', price: 2299, original: 2999, icon: '🧥', isNew: true, sizes: ['S','M','L','XL'] },
+  { id: 4, name: 'MONO HOODIE', category: 'Sweatshirts', price: 1199, original: null, icon: '🥷', isNew: false, sizes: ['XS','S','M','L','XL','XXL'] },
+  { id: 5, name: 'RAW EDGE SHORTS', category: 'Bottoms', price: 699, original: 899, icon: '🩳', isNew: true, sizes: ['S','M','L','XL'] },
+  { id: 6, name: 'SIGNAL CAP', category: 'Accessories', price: 499, original: null, icon: '🧢', isNew: false, sizes: ['ONE SIZE'] },
+];
+
+let cart = [];
+let wishlist = [];
+let selectedSizes = {};
+
+// RENDER PRODUCTS
+function renderProducts() {
+  const grid = document.getElementById('productsGrid');
+  grid.innerHTML = products.map(p => `
+    <div class="product-card" data-id="${p.id}">
+      <div class="product-img">
+        <span class="garment-icon">${p.icon}</span>
+        <div class="product-overlay">
+          <button class="overlay-btn btn-cart" onclick="addToCart(${p.id})">+ Add to Cart</button>
+          <button class="overlay-btn btn-buy" onclick="buyNow(${p.id})">Buy Now →</button>
+        </div>
+        <button class="wishlist-btn" id="wbtn-${p.id}" onclick="toggleWishlist(${p.id})">♡</button>
+        ${p.isNew ? '<span class="new-tag">NEW</span>' : ''}
+      </div>
+      <div class="product-info">
+        <div class="product-name">${p.name}</div>
+        <div class="product-category">${p.category}</div>
+        <div class="product-price-row">
+          <div>
+            <span class="price">₹${p.price.toLocaleString()}</span>
+            ${p.original ? `<span class="price-original">₹${p.original.toLocaleString()}</span>` : ''}
+          </div>
+        </div>
+        <div class="size-row">
+          ${p.sizes.map((s, i) => `<button class="size-chip ${i===0?'selected':''}" onclick="selectSize(${p.id},'${s}',this)">${s}</button>`).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // Default selected sizes
+  products.forEach(p => selectedSizes[p.id] = p.sizes[0]);
+}
+
+function selectSize(pid, size, btn) {
+  selectedSizes[pid] = size;
+  btn.closest('.size-row').querySelectorAll('.size-chip').forEach(c => c.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+// CART
+function addToCart(pid) {
+  const product = products.find(p => p.id === pid);
+  const size = selectedSizes[pid] || product.sizes[0];
+  const key = `${pid}-${size}`;
+  const existing = cart.find(c => c.key === key);
+  if (existing) {
+    existing.qty++;
+  } else {
+    cart.push({ ...product, size, qty: 1, key });
+  }
+  updateCartBadge();
+  showToast(`${product.name} added to cart`, 'success');
+}
+
+function removeFromCart(key) {
+  cart = cart.filter(c => c.key !== key);
+  updateCartBadge();
+  renderCart();
+}
+
+function changeQty(key, delta) {
+  const item = cart.find(c => c.key === key);
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) removeFromCart(key);
+  else renderCart();
+  updateCartBadge();
+}
+
+function updateCartBadge() {
+  const total = cart.reduce((s, c) => s + c.qty, 0);
+  const badge = document.getElementById('cartBadge');
+  badge.textContent = total;
+  badge.style.display = total > 0 ? 'flex' : 'none';
+}
+
+function renderCart() {
+  const body = document.getElementById('cartBody');
+  const footer = document.getElementById('cartFooter');
+  if (cart.length === 0) {
+    body.innerHTML = `<div class="empty-state"><div class="empty-icon">🛒</div><p>YOUR CART IS EMPTY</p></div>`;
+    footer.style.display = 'none';
+    return;
+  }
+  footer.style.display = 'block';
+  body.innerHTML = cart.map(item => `
+    <div class="cart-item">
+      <div class="cart-item-img">${item.icon}</div>
+      <div>
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-meta">SIZE: ${item.size}</div>
+        <div class="qty-control">
+          <button class="qty-btn" onclick="changeQty('${item.key}',-1)">−</button>
+          <span class="qty-num">${item.qty}</span>
+          <button class="qty-btn" onclick="changeQty('${item.key}',1)">+</button>
+        </div>
+        <div class="cart-item-price">₹${(item.price * item.qty).toLocaleString()}</div>
+      </div>
+      <button class="remove-btn" onclick="removeFromCart('${item.key}')">✕</button>
+    </div>
+  `).join('');
+  const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
+  document.getElementById('cartTotal').textContent = '₹' + total.toLocaleString();
+}
+
+function openCart() {
+  renderCart();
+  document.getElementById('cartPanel').classList.add('open');
+  document.getElementById('cartOverlay').classList.add('open');
+}
+function closeCart() {
+  document.getElementById('cartPanel').classList.remove('open');
+  document.getElementById('cartOverlay').classList.remove('open');
+}
+
+function placeOrder() {
+  cart = [];
+  updateCartBadge();
+  closeCart();
+  showToast('🎉 ORDER PLACED SUCCESSFULLY!', 'success');
+}
+
+// WISHLIST
+function toggleWishlist(pid) {
+  const product = products.find(p => p.id === pid);
+  const btn = document.getElementById(`wbtn-${pid}`);
+  const inWishlist = wishlist.find(w => w.id === pid);
+  if (inWishlist) {
+    wishlist = wishlist.filter(w => w.id !== pid);
+    btn.classList.remove('active');
+    btn.innerHTML = '♡';
+    showToast(`Removed from wishlist`, 'default');
+  } else {
+    wishlist.push(product);
+    btn.classList.add('active');
+    btn.innerHTML = '♥';
+    showToast(`${product.name} added to wishlist`, 'wishlist');
+  }
+  updateWishlistBadge();
+}
+
+function updateWishlistBadge() {
+  const badge = document.getElementById('wishlistBadge');
+  badge.textContent = wishlist.length;
+  badge.style.display = wishlist.length > 0 ? 'flex' : 'none';
+}
+
+function renderWishlist() {
+  const body = document.getElementById('wishlistBody');
+  if (wishlist.length === 0) {
+    body.innerHTML = `<div class="empty-state"><div class="empty-icon">♡</div><p>YOUR WISHLIST IS EMPTY</p></div>`;
+    return;
+  }
+  body.innerHTML = wishlist.map(item => `
+    <div class="wishlist-item">
+      <div class="cart-item-img">${item.icon}</div>
+      <div>
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-meta">${item.category}</div>
+        <div class="cart-item-price">₹${item.price.toLocaleString()}</div>
+      </div>
+      <button class="overlay-btn btn-cart" style="font-size:10px; padding:8px 12px; width:auto" onclick="moveToCart(${item.id})">Add to Cart</button>
+    </div>
+  `).join('');
+}
+
+function moveToCart(pid) {
+  addToCart(pid);
+  toggleWishlist(pid);
+  closeWishlist();
+  openCart();
+}
+
+function openWishlist() {
+  renderWishlist();
+  document.getElementById('wishlistPanel').classList.add('open');
+  document.getElementById('wishlistOverlay').classList.add('open');
+}
+function closeWishlist() {
+  document.getElementById('wishlistPanel').classList.remove('open');
+  document.getElementById('wishlistOverlay').classList.remove('open');
+}
+
+// BUY NOW
+let buyProduct = null;
+function buyNow(pid) {
+  buyProduct = products.find(p => p.id === pid);
+  const size = selectedSizes[pid] || buyProduct.sizes[0];
+  document.getElementById('modalProductSummary').innerHTML = `
+    <div class="modal-product-summary">
+      <div class="modal-product-img">${buyProduct.icon}</div>
+      <div>
+        <div class="modal-product-name">${buyProduct.name}</div>
+        <div class="cart-item-meta" style="font-family:'Courier Prime',monospace;font-size:10px;color:#5a5a5a;letter-spacing:.1em;margin:4px 0">SIZE: ${size}</div>
+        <div class="modal-product-price">₹${buyProduct.price.toLocaleString()}</div>
+      </div>
+    </div>
+  `;
+  document.getElementById('buyModal').classList.add('open');
+}
+function closeBuyModal() {
+  document.getElementById('buyModal').classList.remove('open');
+}
+function confirmOrder() {
+  closeBuyModal();
+  showToast(`🎉 ORDER CONFIRMED! SHIPS IN 2–4 DAYS`, 'success');
+}
+
+// Close modal on overlay click
+document.getElementById('buyModal').addEventListener('click', function(e) {
+  if (e.target === this) closeBuyModal();
+});
+
+// TOAST
+function showToast(msg, type='default') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 2600);
+}
+
+// INIT
+renderProducts();
+</script>
+</body>
+</html>
